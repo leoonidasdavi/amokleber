@@ -1,405 +1,453 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Amokleber - Lembrete</title>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Amokleber - Digital Notebook</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Geist:wght@400;500&amp;family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary-fixed": "#2c1700",
+                        "on-secondary-fixed": "#001a42",
+                        "error-container": "#93000a",
+                        "background": "#15121b",
+                        "tertiary": "#ffb869",
+                        "secondary-fixed": "#d8e2ff",
+                        "on-primary": "#3c0091",
+                        "primary": "#d0bcff",
+                        "error": "#ffb4ab",
+                        "on-tertiary": "#482900",
+                        "on-background": "#e7e0ed",
+                        "surface-variant": "#37333d",
+                        "primary-fixed": "#e9ddff",
+                        "surface": "#15121b",
+                        "secondary": "#afc6fe",
+                        "on-tertiary-container": "#3f2300",
+                        "surface-container-highest": "#37333d",
+                        "on-tertiary-fixed-variant": "#673d00",
+                        "on-surface": "#e7e0ed",
+                        "surface-container": "#211e27",
+                        "surface-bright": "#3b3742",
+                        "secondary-fixed-dim": "#afc6fe",
+                        "tertiary-fixed-dim": "#ffb869",
+                        "primary-container": "#a078ff",
+                        "outline-variant": "#494454",
+                        "surface-container-lowest": "#0f0d15",
+                        "tertiary-fixed": "#ffdcbb",
+                        "surface-container-low": "#1d1a23",
+                        "on-secondary-container": "#a1b8ef",
+                        "tertiary-container": "#ca801e",
+                        "surface-container-high": "#2c2832",
+                        "on-primary-fixed-variant": "#5516be",
+                        "surface-dim": "#15121b",
+                        "inverse-surface": "#e7e0ed",
+                        "on-secondary-fixed-variant": "#2e4675",
+                        "inverse-on-surface": "#322f39",
+                        "surface-tint": "#d0bcff",
+                        "secondary-container": "#304878",
+                        "on-primary-fixed": "#23005c",
+                        "on-error": "#690005",
+                        "primary-fixed-dim": "#d0bcff",
+                        "on-surface-variant": "#cbc3d7",
+                        "on-secondary": "#152f5d",
+                        "on-primary-container": "#340080",
+                        "inverse-primary": "#6d3bd7",
+                        "on-error-container": "#ffdad6",
+                        "outline": "#958ea0"
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Geist', 'monospace'],
+                    },
+                },
+            },
+        }
+    </script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: system-ui, -apple-system, sans-serif;
-    background: #0f0f0f;
-    color: #e0e0e0;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    padding: 2rem 1rem;
-  }
-  .container { max-width: 600px; width: 100%; }
-  h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-    background: linear-gradient(135deg, #f97316, #eab308);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .subtitle { color: #888; margin-bottom: 2rem; font-size: 0.9rem; }
-  .card {
-    background: #1a1a1a;
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    border: 1px solid #2a2a2a;
-  }
-  textarea {
-    width: 100%;
-    background: #0f0f0f;
-    border: 1px solid #333;
-    border-radius: 8px;
-    padding: 0.75rem;
-    color: #e0e0e0;
-    font-size: 1rem;
-    resize: vertical;
-    min-height: 80px;
-    font-family: inherit;
-  }
-  textarea:focus { outline: none; border-color: #f97316; }
-  .btn {
-    background: linear-gradient(135deg, #f97316, #eab308);
-    color: #000;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 0.75rem;
-    transition: opacity 0.2s;
-  }
-  .btn:hover { opacity: 0.9; }
-  .btn-sm {
-    padding: 0.4rem 1rem;
-    font-size: 0.85rem;
-    margin-top: 0;
-  }
-  .btn-danger {
-    background: #dc2626;
-    color: #fff;
-  }
-  .btn-secondary {
-    background: #2a2a2a;
-    color: #e0e0e0;
-  }
-  .reminder {
-    background: #1a1a1a;
-    border-radius: 12px;
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-    border: 1px solid #2a2a2a;
-    transition: border-color 0.3s;
-  }
-  .reminder.due {
-    border-color: #f97316;
-    box-shadow: 0 0 20px rgba(249, 115, 22, 0.1);
-  }
-  .reminder-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-  .reminder-text {
-    font-size: 1.05rem;
-    line-height: 1.5;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  .reminder-meta {
-    font-size: 0.8rem;
-    color: #666;
-    margin-top: 0.75rem;
-  }
-  .reminder-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-    flex-wrap: wrap;
-  }
-  .empty-state {
-    text-align: center;
-    padding: 3rem 1rem;
-    color: #555;
-  }
-  .empty-state svg { width: 64px; height: 64px; margin-bottom: 1rem; opacity: 0.3; }
-  .status-badge {
-    display: inline-block;
-    font-size: 0.75rem;
-    padding: 0.2rem 0.6rem;
-    border-radius: 999px;
-    background: #2a2a2a;
-    color: #888;
-  }
-  .status-badge.due { background: #f97316; color: #000; font-weight: 600; }
-  .status-badge.pending { background: #1e3a5f; color: #60a5fa; }
-  .notification {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    background: #16a34a;
-    color: #fff;
-    padding: 0.75rem 1.25rem;
-    border-radius: 8px;
-    font-weight: 600;
-    transform: translateX(120%);
-    transition: transform 0.3s;
-    z-index: 1000;
-  }
-  .notification.show { transform: translateX(0); }
-  .filter-bar {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-  }
-  .filter-btn {
-    background: #2a2a2a;
-    color: #888;
-    border: 1px solid #333;
-    padding: 0.4rem 1rem;
-    border-radius: 999px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: all 0.2s;
-  }
-  .filter-btn.active { background: #f97316; color: #000; border-color: #f97316; font-weight: 600; }
-  .progress-bar {
-    height: 4px;
-    background: #2a2a2a;
-    border-radius: 2px;
-    margin-top: 0.75rem;
-    overflow: hidden;
-  }
-  .progress-bar .fill {
-    height: 100%;
-    border-radius: 2px;
-    background: linear-gradient(90deg, #f97316, #eab308);
-    transition: width 0.3s;
-  }
-</style>
+        body {
+            background-color: #0f0d15;
+            color: #e7e0ed;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .notebook-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        @media (max-width: 768px) {
+            .notebook-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar-binder {
+                display: none;
+            }
+        }
+
+        .sidebar-binder {
+            background: #1d1a23;
+            border-right: 2px solid #494454;
+            position: relative;
+            z-index: 20;
+        }
+
+        .binder-spine {
+            position: absolute;
+            right: -12px;
+            top: 0;
+            bottom: 0;
+            width: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 30;
+            pointer-events: none;
+        }
+
+        .binder-ring {
+            width: 12px;
+            height: 48px;
+            background: linear-gradient(90deg, #494454 0%, #cbc3d7 50%, #494454 100%);
+            border-radius: 6px;
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .paper-page {
+            background-color: #15121b;
+            background-image: 
+                linear-gradient(#211e27 1px, transparent 1px),
+                linear-gradient(90deg, #211e27 1px, transparent 1px);
+            background-size: 32px 32px;
+            position: relative;
+            min-height: 100vh;
+            padding: 4rem 3rem;
+        }
+
+        .sticky-note {
+            background: #211e27;
+            border-left: 4px solid #a078ff;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+            transform: rotate(-0.5deg);
+            transition: transform 0.2s ease;
+        }
+        .sticky-note:nth-child(even) {
+            transform: rotate(0.5deg);
+        }
+        .sticky-note:hover {
+            transform: rotate(0deg) scale(1.01);
+        }
+
+        .tab-active {
+            background: #15121b;
+            border-left: 4px solid #d0bcff;
+            color: #d0bcff;
+        }
+
+        .premium-title {
+            background: linear-gradient(135deg, #d0bcff 0%, #a1b8ef 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .btn-primary {
+            background: #a078ff;
+            color: #23005c;
+            font-weight: 600;
+        }
+        .btn-primary:hover {
+            background: #d0bcff;
+            box-shadow: 0 0 20px rgba(160, 120, 255, 0.3);
+        }
+
+        .notification {
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .progress-line-fill {
+            background: linear-gradient(90deg, #a078ff 0%, #ffb869 100%);
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
 </head>
 <body>
-
-<div class="container">
-  <h1>Amokleber</h1>
-  <p class="subtitle">Escreva algo que você não quer esquecer. O site te lembra em 30–36 dias.</p>
-
-  <div class="card">
-    <textarea id="noteInput" placeholder="Ex: Preciso treinar às 18h todos os dias..."></textarea>
-    <button class="btn" onclick="addReminder()">Criar Lembrete</button>
-  </div>
-
-  <div class="filter-bar">
-    <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">Todos</button>
-    <button class="filter-btn" data-filter="due" onclick="setFilter('due')">Pendentes</button>
-    <button class="filter-btn" data-filter="waiting" onclick="setFilter('waiting')">Agendados</button>
-    <button class="filter-btn" data-filter="done" onclick="setFilter('done')">Concluídos</button>
-  </div>
-
-  <div id="reminderList"></div>
+<div class="notebook-container">
+<!-- Sidebar / Binder Edge -->
+<aside class="sidebar-binder p-8 flex flex-col h-full sticky top-0">
+<div class="mb-10">
+<h1 class="premium-title text-3xl font-bold mb-2">Amokleber</h1>
+<p class="text-on-surface-variant text-xs font-light opacity-60">Digital Binder v2.0</p>
 </div>
-
-<div id="notification" class="notification"></div>
-
+<nav class="space-y-1 flex-1">
+<div class="text-[10px] uppercase tracking-[0.2em] text-on-surface-variant/40 mb-4 px-4">Seções</div>
+<button class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors hover:bg-surface-variant/30 text-on-surface tab-active">
+<span class="material-symbols-outlined text-sm">inbox</span> Inbox
+            </button>
+<button class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors hover:bg-surface-variant/30 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">person</span> Pessoal
+            </button>
+<button class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors hover:bg-surface-variant/30 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">work</span> Trabalho
+            </button>
+<button class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors hover:bg-surface-variant/30 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">lightbulb</span> Ideias
+            </button>
+</nav>
+<div class="mt-auto pt-8 border-t border-outline-variant/30 text-[10px] text-on-surface-variant/40">
+            Ciclos de 30 a 36 dias
+        </div>
+<div class="binder-spine">
+<div class="binder-ring"></div>
+<div class="binder-ring"></div>
+<div class="binder-ring"></div>
+<div class="binder-ring"></div>
+<div class="binder-ring"></div>
+<div class="binder-ring"></div>
+<div class="binder-ring"></div>
+<div class="binder-ring"></div>
+</div>
+</aside>
+<!-- Main Content Area / Paper Page -->
+<main class="paper-page">
+<div class="max-w-3xl mx-auto">
+<!-- Notebook Top Navigation (Tabs) -->
+<div class="flex items-center gap-6 mb-12 border-b border-outline-variant/20 pb-4 overflow-x-auto scrollbar-hide">
+<button class="filter-btn active text-sm font-medium border-b-2 border-primary pb-4 -mb-[18px] text-primary transition-all px-2 whitespace-nowrap" data-filter="all" onclick="setFilter('all')">Todos</button>
+<button class="filter-btn text-sm font-medium border-b-2 border-transparent pb-4 -mb-[18px] text-on-surface-variant hover:text-on-surface transition-all px-2 whitespace-nowrap" data-filter="due" onclick="setFilter('due')">Pendentes</button>
+<button class="filter-btn text-sm font-medium border-b-2 border-transparent pb-4 -mb-[18px] text-on-surface-variant hover:text-on-surface transition-all px-2 whitespace-nowrap" data-filter="waiting" onclick="setFilter('waiting')">Agendados</button>
+<button class="filter-btn text-sm font-medium border-b-2 border-transparent pb-4 -mb-[18px] text-on-surface-variant hover:text-on-surface transition-all px-2 whitespace-nowrap" data-filter="done" onclick="setFilter('done')">Concluídos</button>
+</div>
+<!-- New Page Entry Section -->
+<section class="mb-16">
+<div class="relative">
+<textarea class="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl p-6 text-lg focus:ring-2 focus:ring-primary/20 focus:border-primary/40 outline-none transition-all placeholder-on-surface-variant/30 min-h-[160px] resize-none" id="noteInput" placeholder="O que você não quer esquecer? Escreva aqui..."></textarea>
+<div class="absolute bottom-4 right-4">
+<button class="btn-primary px-6 py-2.5 rounded-xl text-sm transition-all flex items-center gap-2" onclick="addReminder()">
+<span class="material-symbols-outlined text-lg">add_circle</span>
+                            Criar Lembrete
+                        </button>
+</div>
+</div>
+</section>
+<!-- List of Reminders (Sticky Notes) -->
+<div class="grid grid-cols-1 gap-6" id="reminderList">
+<!-- Content generated by JS -->
+</div>
+</div>
+</main>
+</div>
+<div class="notification fixed bottom-8 right-8 z-50 bg-surface-container-highest/90 backdrop-blur-md px-6 py-4 rounded-2xl border border-outline-variant shadow-2xl text-sm font-medium flex items-center gap-3" id="notification">
+<span class="material-symbols-outlined text-primary">info</span>
+<span id="notifMessage"></span>
+</div>
 <script>
-  const STORAGE_KEY = 'amokleber_reminders';
-  const MIN_DAYS = 30;
-  const MAX_DAYS = 36;
+    const STORAGE_KEY = 'amokleber_reminders';
+    const MIN_DAYS = 30;
+    const MAX_DAYS = 36;
+    let reminders = loadReminders();
+    let currentFilter = 'all';
 
-  let reminders = loadReminders();
-  let currentFilter = 'all';
-
-  function loadReminders() {
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    } catch { return []; }
-  }
-
-  function saveReminders() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(reminders));
-  }
-
-  function getRandomInterval() {
-    const days = MIN_DAYS + Math.floor(Math.random() * (MAX_DAYS - MIN_DAYS + 1));
-    return days * 24 * 60 * 60 * 1000;
-  }
-
-  function addReminder() {
-    const text = document.getElementById('noteInput').value.trim();
-    if (!text) return;
-
-    const now = Date.now();
-    reminders.push({
-      id: now + Math.random().toString(36).slice(2, 6),
-      text,
-      createdAt: now,
-      lastNotifiedAt: null,
-      done: false
-    });
-
-    saveReminders();
-    document.getElementById('noteInput').value = '';
-    showNotification('Lembrete criado!');
-    render();
-  }
-
-  function getReminderStatus(r) {
-    const now = Date.now();
-    if (r.done) return 'done';
-    if (!r.lastNotifiedAt) {
-      const elapsed = now - r.createdAt;
-      if (elapsed >= MIN_DAYS * 24 * 60 * 60 * 1000) return 'due';
-      return 'waiting';
-    }
-    const elapsed = now - r.lastNotifiedAt;
-    if (elapsed >= MIN_DAYS * 24 * 60 * 60 * 1000) return 'due';
-    return 'waiting';
-  }
-
-  function setFilter(filter) {
-    currentFilter = filter;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector(`.filter-btn[data-filter="${filter}"]`).classList.add('active');
-    render();
-  }
-
-  function dismissReminder(id) {
-    const r = reminders.find(x => x.id === id);
-    if (!r) return;
-    r.lastNotifiedAt = Date.now();
-    saveReminders();
-    showNotification('Lembrete adiado por 30–36 dias');
-    render();
-  }
-
-  function completeReminder(id) {
-    const r = reminders.find(x => x.id === id);
-    if (!r) return;
-    r.done = true;
-    saveReminders();
-    showNotification('Lembrete concluído!');
-    render();
-  }
-
-  function deleteReminder(id) {
-    if (!confirm('Deletar este lembrete?')) return;
-    reminders = reminders.filter(x => x.id !== id);
-    saveReminders();
-    showNotification('Lembrete deletado');
-    render();
-  }
-
-  function deleteAllDone() {
-    const done = reminders.filter(r => r.done);
-    if (done.length === 0) { showNotification('Nenhum concluído para limpar'); return; }
-    if (!confirm(`Limpar ${done.length} lembrete(s) concluído(s)?`)) return;
-    reminders = reminders.filter(r => !r.done);
-    saveReminders();
-    showNotification('Concluídos limpos');
-    render();
-  }
-
-  function render() {
-    const container = document.getElementById('reminderList');
-
-    let filtered = reminders;
-    if (currentFilter === 'due') filtered = reminders.filter(r => getReminderStatus(r) === 'due');
-    else if (currentFilter === 'waiting') filtered = reminders.filter(r => getReminderStatus(r) === 'waiting');
-    else if (currentFilter === 'done') filtered = reminders.filter(r => getReminderStatus(r) === 'done');
-
-    if (filtered.length === 0) {
-      const msgs = {
-        all: 'Nenhum lembrete ainda. Crie um acima!',
-        due: 'Nada pendente agora. Volte em 30–36 dias.',
-        waiting: 'Nada agendado.',
-        done: 'Nenhum concluído.'
-      };
-      container.innerHTML = `<div class="empty-state"><p>${msgs[currentFilter]}</p></div>`;
-      return;
+    function loadReminders() {
+        try {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        } catch { return []; }
     }
 
-    let html = '';
-    const now = Date.now();
+    function saveReminders() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(reminders));
+    }
 
-    filtered.sort((a, b) => {
-      const sa = getReminderStatus(a) === 'due' ? 0 : 1;
-      const sb = getReminderStatus(b) === 'due' ? 0 : 1;
-      if (sa !== sb) return sa - sb;
-      return b.createdAt - a.createdAt;
-    });
+    function addReminder() {
+        const text = document.getElementById('noteInput').value.trim();
+        if (!text) return;
+        const now = Date.now();
+        reminders.push({
+            id: now + Math.random().toString(36).slice(2, 6),
+            text,
+            createdAt: now,
+            lastNotifiedAt: null,
+            done: false
+        });
+        saveReminders();
+        document.getElementById('noteInput').value = '';
+        showNotification('Novo pensamento arquivado na binder.');
+        render();
+    }
 
-    for (const r of filtered) {
-      const status = getReminderStatus(r);
-      const createdAt = new Date(r.createdAt).toLocaleDateString('pt-BR');
-
-      let progress = 0;
-      let daysLeft = '';
-      let statusLabel = '';
-
-      if (status === 'done') {
-        statusLabel = '<span class="status-badge">Concluído</span>';
-      } else if (status === 'due') {
-        statusLabel = '<span class="status-badge due">Pendente agora!</span>';
-        progress = 100;
-        daysLeft = 'Agora!';
-      } else {
+    function getReminderStatus(r) {
+        const now = Date.now();
+        if (r.done) return 'done';
         const start = r.lastNotifiedAt || r.createdAt;
         const elapsed = now - start;
-        const total = MIN_DAYS * 24 * 60 * 60 * 1000;
-        progress = Math.min(99, Math.round((elapsed / total) * 100));
-        const remainingMs = total - elapsed;
-        const remainingDays = Math.ceil(remainingMs / (24 * 60 * 60 * 1000));
-        daysLeft = `${remainingDays} dias`;
-        statusLabel = `<span class="status-badge pending">${daysLeft}</span>`;
-      }
-
-      html += `
-        <div class="reminder ${status === 'due' ? 'due' : ''}">
-          <div class="reminder-header">
-            <div>
-              <div class="reminder-text">${escapeHtml(r.text)}</div>
-              <div class="reminder-meta">Criado em ${createdAt} ${statusLabel}</div>
-            </div>
-          </div>
-          ${status !== 'done' ? `
-            <div class="progress-bar">
-              <div class="fill" style="width: ${progress}%"></div>
-            </div>
-          ` : ''}
-          <div class="reminder-actions">
-            ${status === 'due' ? `<button class="btn btn-sm" onclick="dismissReminder('${r.id}')">Adiar 30–36d</button>` : ''}
-            ${status === 'due' || status === 'waiting' ? `<button class="btn btn-sm btn-secondary" onclick="completeReminder('${r.id}')">Concluir</button>` : ''}
-            <button class="btn btn-sm btn-danger" onclick="deleteReminder('${r.id}')">Deletar</button>
-          </div>
-        </div>
-      `;
+        if (elapsed >= MIN_DAYS * 24 * 60 * 60 * 1000) return 'due';
+        return 'waiting';
     }
 
-    const hasDone = reminders.some(r => r.done);
-    html += hasDone ? `<button class="btn btn-sm btn-secondary" onclick="deleteAllDone()" style="margin-top:0.5rem">Limpar concluídos</button>` : '';
-
-    container.innerHTML = html;
-  }
-
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
-  let notifTimeout;
-
-  function showNotification(msg) {
-    const el = document.getElementById('notification');
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(notifTimeout);
-    notifTimeout = setTimeout(() => el.classList.remove('show'), 2500);
-  }
-
-  // Check for due reminders on load
-  function checkDueReminders() {
-    const due = reminders.filter(r => getReminderStatus(r) === 'due');
-    if (due.length > 0) {
-      const msg = due.length === 1
-        ? `1 lembrete pendente!`
-        : `${due.length} lembretes pendentes!`;
-      setTimeout(() => showNotification(`🔔 ${msg}`), 500);
+    function setFilter(filter) {
+        currentFilter = filter;
+        document.querySelectorAll('.filter-btn').forEach(b => {
+            b.classList.remove('active', 'border-primary', 'text-primary');
+            b.classList.add('border-transparent', 'text-on-surface-variant');
+        });
+        const active = document.querySelector(`.filter-btn[data-filter="${filter}"]`);
+        active.classList.add('active', 'border-primary', 'text-primary');
+        active.classList.remove('border-transparent', 'text-on-surface-variant');
+        render();
     }
-  }
 
-  render();
-  checkDueReminders();
+    function dismissReminder(id) {
+        const r = reminders.find(x => x.id === id);
+        if (!r) return;
+        r.lastNotifiedAt = Date.now();
+        saveReminders();
+        showNotification('Página virada. Ciclo reiniciado.');
+        render();
+    }
+
+    function completeReminder(id) {
+        const r = reminders.find(x => x.id === id);
+        if (!r) return;
+        r.done = true;
+        saveReminders();
+        showNotification('Item marcado como concluído.');
+        render();
+    }
+
+    function deleteReminder(id) {
+        if (!confirm('Deseja remover esta nota da binder?')) return;
+        reminders = reminders.filter(x => x.id !== id);
+        saveReminders();
+        showNotification('Nota removida.');
+        render();
+    }
+
+    function deleteAllDone() {
+        const done = reminders.filter(r => r.done);
+        if (done.length === 0) return;
+        if (!confirm(`Limpar ${done.length} item(ns) concluído(s)?`)) return;
+        reminders = reminders.filter(r => !r.done);
+        saveReminders();
+        showNotification('Histórico limpo.');
+        render();
+    }
+
+    function render() {
+        const container = document.getElementById('reminderList');
+        let filtered = reminders;
+        if (currentFilter === 'due') filtered = reminders.filter(r => getReminderStatus(r) === 'due');
+        else if (currentFilter === 'waiting') filtered = reminders.filter(r => getReminderStatus(r) === 'waiting');
+        else if (currentFilter === 'done') filtered = reminders.filter(r => getReminderStatus(r) === 'done');
+
+        if (filtered.length === 0) {
+            const msgs = {
+                all: 'Sua binder está vazia.',
+                due: 'Nenhuma revisão pendente no momento.',
+                waiting: 'Nada agendado para o futuro próximo.',
+                done: 'Sem registros históricos.'
+            };
+            container.innerHTML = `<div class="text-center py-20 text-on-surface-variant/30 font-light italic">${msgs[currentFilter]}</div>`;
+            return;
+        }
+
+        let html = '';
+        const now = Date.now();
+        filtered.sort((a, b) => {
+            const sa = getReminderStatus(a) === 'due' ? 0 : 1;
+            const sb = getReminderStatus(b) === 'due' ? 0 : 1;
+            if (sa !== sb) return sa - sb;
+            return b.createdAt - a.createdAt;
+        });
+
+        for (const r of filtered) {
+            const status = getReminderStatus(r);
+            const createdAt = new Date(r.createdAt).toLocaleDateString('pt-BR');
+            let progress = 0;
+            let statusBadge = '';
+            
+            if (status === 'done') {
+                statusBadge = '<span class="px-2 py-0.5 rounded-full bg-surface-variant/50 text-[10px] uppercase text-on-surface-variant/60">Concluído</span>';
+            } else if (status === 'due') {
+                statusBadge = '<span class="px-2 py-0.5 rounded-full bg-tertiary-container/30 text-tertiary text-[10px] uppercase font-bold">Atenção!</span>';
+                progress = 100;
+            } else {
+                const start = r.lastNotifiedAt || r.createdAt;
+                const elapsed = now - start;
+                const total = MIN_DAYS * 24 * 60 * 60 * 1000;
+                progress = Math.min(99.9, Math.round((elapsed / total) * 100));
+                const remainingDays = Math.ceil((total - elapsed) / (24 * 60 * 60 * 1000));
+                statusBadge = `<span class="px-2 py-0.5 rounded-full bg-secondary-container/20 text-secondary text-[10px] uppercase">${remainingDays} dias restantes</span>`;
+            }
+
+            html += `
+                <div class="sticky-note rounded-xl p-6 group">
+                    <div class="flex justify-between items-start gap-4 mb-3">
+                        <p class="text-on-surface text-base leading-relaxed flex-1">${escapeHtml(r.text)}</p>
+                        ${statusBadge}
+                    </div>
+                    
+                    <div class="flex items-center justify-between mt-8">
+                        <div class="flex items-center gap-3">
+                            ${status === 'due' ? `<button onclick="dismissReminder('${r.id}')" class="text-xs text-primary hover:underline font-medium">Revisar</button>` : ''}
+                            ${status !== 'done' ? `<button onclick="completeReminder('${r.id}')" class="text-xs text-secondary hover:underline font-medium">Arquivar</button>` : ''}
+                            <button onclick="deleteReminder('${r.id}')" class="text-xs text-error/60 hover:text-error transition-colors">Excluir</button>
+                        </div>
+                        <span class="text-[10px] font-mono text-on-surface-variant/30">${createdAt}</span>
+                    </div>
+
+                    ${status !== 'done' ? `
+                        <div class="h-1 w-full bg-surface-container-highest/30 overflow-hidden mt-4 rounded-full">
+                            <div class="progress-line-fill h-full" style="width: ${progress}%"></div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        const hasDone = reminders.some(r => r.done);
+        if (hasDone && (currentFilter === 'all' || currentFilter === 'done')) {
+            html += `<div class="flex justify-center mt-12"><button class="text-xs text-on-surface-variant/40 hover:text-on-surface transition-all flex items-center gap-2" onclick="deleteAllDone()"><span class="material-symbols-outlined text-lg">delete_sweep</span> Limpar concluídos</button></div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    let notifTimeout;
+    function showNotification(msg) {
+        const el = document.getElementById('notification');
+        const text = document.getElementById('notifMessage');
+        text.textContent = msg;
+        el.classList.add('show');
+        clearTimeout(notifTimeout);
+        notifTimeout = setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    function checkDueReminders() {
+        const due = reminders.filter(r => getReminderStatus(r) === 'due');
+        if (due.length > 0) {
+            setTimeout(() => showNotification(`Revisão pendente: ${due.length} item(ns) aguardando.`), 1000);
+        }
+    }
+
+    render();
+    checkDueReminders();
 </script>
-</body>
-</html>
+</body></html>
