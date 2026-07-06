@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amokleber - Lembrete</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: #0f0f0f;
+    color: #e0e0e0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+  .container { max-width: 600px; width: 100%; }
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    background: linear-gradient(135deg, #f97316, #eab308);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle { color: #888; margin-bottom: 2rem; font-size: 0.9rem; }
+  .card {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #2a2a2a;
+  }
+  textarea {
+    width: 100%;
+    background: #0f0f0f;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 0.75rem;
+    color: #e0e0e0;
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+  }
+  textarea:focus { outline: none; border-color: #f97316; }
+  .btn {
+    background: linear-gradient(135deg, #f97316, #eab308);
+    color: #000;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0.75rem;
+    transition: opacity 0.2s;
+  }
+  .btn:hover { opacity: 0.9; }
+  .btn-sm {
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    margin-top: 0;
+  }
+  .btn-danger {
+    background: #dc2626;
+    color: #fff;
+  }
+  .btn-secondary {
+    background: #2a2a2a;
+    color: #e0e0e0;
+  }
+  .reminder {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid #2a2a2a;
+    transition: border-color 0.3s;
+  }
+  .reminder.due {
+    border-color: #f97316;
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.1);
+  }
+  .reminder-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .reminder-text {
+    font-size: 1.05rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .reminder-meta {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 0.75rem;
+  }
+  .reminder-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #555;
+  }
+  .empty-state svg { width: 64px; height: 64px; margin-bottom: 1rem; opacity: 0.3; }
+  .status-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background: #2a2a2a;
+    color: #888;
+  }
+  .status-badge.due { background: #f97316; color: #000; font-weight: 600; }
+  .status-badge.pending { background: #1e3a5f; color: #60a5fa; }
+  .notification {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: #16a34a;
+    color: #fff;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transform: translateX(120%);
+    transition: transform 0.3s;
+    z-index: 1000;
+  }
+  .notification.show { transform: translateX(0); }
+  .filter-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    background: #2a2a2a;
+    color: #888;
+    border: 1px solid #333;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  .filter-btn.active { background: #f97316; color: #000; border-color: #f97316; font-weight: 600; }
+  .progress-bar {
+    height: 4px;
+    background: #2a2a2a;
+    border-radius: 2px;
+    margin-top: 0.75rem;
+    overflow: hidden;
+  }
+  .progress-bar .fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #f97316, #eab308);
+    transition: width 0.3s;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Amokleber</h1>
+  <p class="subtitle">Escreva algo que você não quer esquecer. O site te lembra em 30–36 dias.</p>
+
+  <div class="card">
+    <textarea id="noteInput" placeholder="Ex: Preciso treinar às 18h todos os dias..."></textarea>
+    <button class="btn" onclick="addReminder()">Criar Lembrete</button>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">Todos</button>
+    <button class="filter-btn" data-filter="due" onclick="setFilter('due')">Pendentes</button>
+    <button class="filter-btn" data-filter="waiting" onclick="setFilter('waiting')">Agendados</button>
+    <button class="filter-btn" data-filter="done" onclick="setFilter('done')">Concluídos</button>
+  </div>
+
+  <div id="reminderList"></div>
+</div>
+
+<div id="notification" class="notification"></div>
+
+<script>
+  const STORAGE_KEY = 'amokleber_reminders';
+  const MIN_DAYS = 30;
+  const MAX_DAYS = 36;
+
+  let reminders = loadReminders();
+  let currentFilter = 'all';
+
+  function loadReminders() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    } catch { return []; }
+  }
+
+  function saveReminders() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(reminders));
+  }
+
+  function getRandomInterval() {
+    const days = MIN_DAYS + Math.floor(Math.random() * (MAX_DAYS - MIN_DAYS + 1));
+    return days * 24 * 60 * 60 * 1000;
+  }
+
+  function addReminder() {
+    const text = document.getElementById('noteInput').value.trim();
+    if (!text) return;
+
+    const now = Date.now();
+    reminders.push({
+      id: now + Math.random().toString(36).slice(2, 6),
+      text,
+      createdAt: now,
+      lastNotifiedAt: null,
+      done: false
+    });
+
+    saveReminders();
+    document.getElementById('noteInput').value = '';
+    showNotification('Lembrete criado!');
+    render();
+  }
+
+  function getReminderStatus(r) {
+    const now = Date.now();
+    if (r.done) return 'done';
+    if (!r.lastNotifiedAt) {
+      const elapsed = now - r.createdAt;
+      if (elapsed >= MIN_DAYS * 24 * 60 * 60 * 1000) return 'due';
+      return 'waiting';
+    }
+    const elapsed = now - r.lastNotifiedAt;
+    if (elapsed >= MIN_DAYS * 24 * 60 * 60 * 1000) return 'due';
+    return 'waiting';
+  }
+
+  function setFilter(filter) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.filter-btn[data-filter="${filter}"]`).classList.add('active');
+    render();
+  }
+
+  function dismissReminder(id) {
+    const r = reminders.find(x => x.id === id);
+    if (!r) return;
+    r.lastNotifiedAt = Date.now();
+    saveReminders();
+    showNotification('Lembrete adiado por 30–36 dias');
+    render();
+  }
+
+  function completeReminder(id) {
+    const r = reminders.find(x => x.id === id);
+    if (!r) return;
+    r.done = true;
+    saveReminders();
+    showNotification('Lembrete concluído!');
+    render();
+  }
+
+  function deleteReminder(id) {
+    if (!confirm('Deletar este lembrete?')) return;
+    reminders = reminders.filter(x => x.id !== id);
+    saveReminders();
+    showNotification('Lembrete deletado');
+    render();
+  }
+
+  function deleteAllDone() {
+    const done = reminders.filter(r => r.done);
+    if (done.length === 0) { showNotification('Nenhum concluído para limpar'); return; }
+    if (!confirm(`Limpar ${done.length} lembrete(s) concluído(s)?`)) return;
+    reminders = reminders.filter(r => !r.done);
+    saveReminders();
+    showNotification('Concluídos limpos');
+    render();
+  }
+
+  function render() {
+    const container = document.getElementById('reminderList');
+
+    let filtered = reminders;
+    if (currentFilter === 'due') filtered = reminders.filter(r => getReminderStatus(r) === 'due');
+    else if (currentFilter === 'waiting') filtered = reminders.filter(r => getReminderStatus(r) === 'waiting');
+    else if (currentFilter === 'done') filtered = reminders.filter(r => getReminderStatus(r) === 'done');
+
+    if (filtered.length === 0) {
+      const msgs = {
+        all: 'Nenhum lembrete ainda. Crie um acima!',
+        due: 'Nada pendente agora. Volte em 30–36 dias.',
+        waiting: 'Nada agendado.',
+        done: 'Nenhum concluído.'
+      };
+      container.innerHTML = `<div class="empty-state"><p>${msgs[currentFilter]}</p></div>`;
+      return;
+    }
+
+    let html = '';
+    const now = Date.now();
+
+    filtered.sort((a, b) => {
+      const sa = getReminderStatus(a) === 'due' ? 0 : 1;
+      const sb = getReminderStatus(b) === 'due' ? 0 : 1;
+      if (sa !== sb) return sa - sb;
+      return b.createdAt - a.createdAt;
+    });
+
+    for (const r of filtered) {
+      const status = getReminderStatus(r);
+      const createdAt = new Date(r.createdAt).toLocaleDateString('pt-BR');
+
+      let progress = 0;
+      let daysLeft = '';
+      let statusLabel = '';
+
+      if (status === 'done') {
+        statusLabel = '<span class="status-badge">Concluído</span>';
+      } else if (status === 'due') {
+        statusLabel = '<span class="status-badge due">Pendente agora!</span>';
+        progress = 100;
+        daysLeft = 'Agora!';
+      } else {
+        const start = r.lastNotifiedAt || r.createdAt;
+        const elapsed = now - start;
+        const total = MIN_DAYS * 24 * 60 * 60 * 1000;
+        progress = Math.min(99, Math.round((elapsed / total) * 100));
+        const remainingMs = total - elapsed;
+        const remainingDays = Math.ceil(remainingMs / (24 * 60 * 60 * 1000));
+        daysLeft = `${remainingDays} dias`;
+        statusLabel = `<span class="status-badge pending">${daysLeft}</span>`;
+      }
+
+      html += `
+        <div class="reminder ${status === 'due' ? 'due' : ''}">
+          <div class="reminder-header">
+            <div>
+              <div class="reminder-text">${escapeHtml(r.text)}</div>
+              <div class="reminder-meta">Criado em ${createdAt} ${statusLabel}</div>
+            </div>
+          </div>
+          ${status !== 'done' ? `
+            <div class="progress-bar">
+              <div class="fill" style="width: ${progress}%"></div>
+            </div>
+          ` : ''}
+          <div class="reminder-actions">
+            ${status === 'due' ? `<button class="btn btn-sm" onclick="dismissReminder('${r.id}')">Adiar 30–36d</button>` : ''}
+            ${status === 'due' || status === 'waiting' ? `<button class="btn btn-sm btn-secondary" onclick="completeReminder('${r.id}')">Concluir</button>` : ''}
+            <button class="btn btn-sm btn-danger" onclick="deleteReminder('${r.id}')">Deletar</button>
+          </div>
+        </div>
+      `;
+    }
+
+    const hasDone = reminders.some(r => r.done);
+    html += hasDone ? `<button class="btn btn-sm btn-secondary" onclick="deleteAllDone()" style="margin-top:0.5rem">Limpar concluídos</button>` : '';
+
+    container.innerHTML = html;
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  let notifTimeout;
+
+  function showNotification(msg) {
+    const el = document.getElementById('notification');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(notifTimeout);
+    notifTimeout = setTimeout(() => el.classList.remove('show'), 2500);
+  }
+
+  // Check for due reminders on load
+  function checkDueReminders() {
+    const due = reminders.filter(r => getReminderStatus(r) === 'due');
+    if (due.length > 0) {
+      const msg = due.length === 1
+        ? `1 lembrete pendente!`
+        : `${due.length} lembretes pendentes!`;
+      setTimeout(() => showNotification(`🔔 ${msg}`), 500);
+    }
+  }
+
+  render();
+  checkDueReminders();
+</script>
+</body>
+</html>
